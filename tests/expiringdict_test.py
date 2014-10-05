@@ -3,6 +3,9 @@ from expiringdict import *
 from time import sleep
 
 
+unpatched_time = time.time
+
+
 def test_create():
     assert_raises(AssertionError, ExpiringDict, max_len=1, max_age_seconds=-1)
     assert_raises(AssertionError, ExpiringDict, max_len=0, max_age_seconds=1)
@@ -121,3 +124,16 @@ def test_not_implemented():
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)
+
+
+@patch('time.time')
+def test_expires_all_objects(time_mock):
+    time_mock.return_value = unpatched_time()
+    d = ExpiringDict(max_len=3, max_age_seconds=10)
+    for i in range(1, 10):
+        d[i] = i
+    assert len(d) == 3
+    # assert d[9]
+    time_mock.return_value += 10
+    assert_raises(KeyError, lambda: d[9])
+    assert len(d) == 0

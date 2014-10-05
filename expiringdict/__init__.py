@@ -62,6 +62,11 @@ class ExpiringDict(OrderedDict):
                 else:
                     return item[0]
             else:
+                if key == 9:
+                    #######################################################
+                    from IPython import embed; embed()
+                    import sys; sys.exit()
+                    #######################################################
                 del self[key]
                 raise KeyError(key)
 
